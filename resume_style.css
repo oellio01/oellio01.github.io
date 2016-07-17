@@ -6,12 +6,13 @@ h1, h2 {
     text-align: center;
 }
 
-ul {
+dt {
     font-size: 16px;
     font-family: cursive;
+    padding-left: 20px;
 }
 
-li {
+dd {
     font-size: 16px;
     font-family: perpetua;
     padding-top: 2px;
