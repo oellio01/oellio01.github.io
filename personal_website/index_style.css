@@ -1,0 +1,26 @@
+body {
+    text-align: center;
+    font-family: Georgia;
+}
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    display: block;
+    padding: 5px;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    color: blue;
+}
+
+p img {
+    width: 100%;
+    max-width: 500px;
+}

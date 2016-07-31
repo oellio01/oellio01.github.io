@@ -1,0 +1,22 @@
+body { 
+    font-family: Georgia;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+dt {
+    font-size: 16px;
+    font-family: cursive;
+    padding-left: 20px;
+}
+
+dd {
+    font-size: 16px;
+    font-family: perpetua;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-left: 50px;
+    list-style-type: circle;   
+}
