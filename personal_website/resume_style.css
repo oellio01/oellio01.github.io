@@ -1,5 +1,6 @@
 body { 
     font-family: Georgia;
+    text-align: center;
 }
 
 h1, h2 {
@@ -19,4 +20,27 @@ dd {
     padding-bottom: 2px;
     margin-left: 50px;
     list-style-type: circle;   
+}
+
+ul {
+        list-style-type: none;
+    }
+
+a {
+    text-decoration: none;
+}
+
+
+@media screen and (max-width: 800px) {
+    li {
+        display: block;
+        padding: 5px;
+    }
+}
+
+@media screen and (min-width: 801px) {
+    li {
+        display: inline;
+        padding: 10px;
+    }
 }
