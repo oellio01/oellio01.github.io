@@ -1,0 +1,42 @@
+body {
+    text-align: center;
+    font-family: Georgia;
+}
+
+ul {
+    list-style-type: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    color: blue;
+}
+
+@media screen and (max-width: 800px) {
+    li {
+        display: block;
+        padding: 5px;
+    }
+}
+
+@media screen and (min-width: 801px) {
+    li {
+        display: inline;
+        padding: 10px;
+    }
+}
+
+div {
+    max-width: 900px;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    text-align: left;
+    align-self: center;
+    margin: auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
