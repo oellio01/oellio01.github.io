@@ -1,6 +1,8 @@
+    
     body {
+        
         text-align: center;
-        font-family: Georgia;
+        font-family: 'Monoton';
     }
 
     ul {
@@ -8,6 +10,7 @@
     }
 
     a {
+        color: #212121;
         text-decoration: none;
     }
 
@@ -31,7 +34,7 @@
 @media screen and (min-width: 801px) {
     li {
         display: inline;
-        padding: 10px;
+        margin: 30px;
     }
 }
 

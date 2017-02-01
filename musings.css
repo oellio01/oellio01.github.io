@@ -1,6 +1,6 @@
 body {
     text-align: center;
-    font-family: Georgia;
+    font-family: 'Monoton';
 }
 
 ul {
@@ -8,7 +8,17 @@ ul {
 }
 
 a {
+    color: #212121;
     text-decoration: none;
+}
+
+h2 {
+    text-align: center;
+}
+
+div {
+    font-family: 'EB Garamond';
+    font-size: 18px;
 }
 
 a:hover {
@@ -25,7 +35,7 @@ a:hover {
 @media screen and (min-width: 801px) {
     li {
         display: inline;
-        padding: 10px;
+        margin: 30px;
     }
 }
 
