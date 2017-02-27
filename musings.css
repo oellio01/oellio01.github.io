@@ -50,3 +50,13 @@ div {
     margin-bottom: 20px;
     margin-top: 20px;
 }
+
+p {
+    padding-left: 20pt;
+    padding-right: 20pt;
+}
+
+p.indented {   
+    padding-left: 40pt;   
+    padding-right: 40pt; 
+}
