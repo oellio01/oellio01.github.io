@@ -17,7 +17,7 @@ h2 {
 }
 
 div {
-    font-family: 'EB Garamond';
+    font-family: 'Fanwood Text';
     font-size: 18px;
 }
 
@@ -41,7 +41,7 @@ a:hover {
 
 div {
     max-width: 900px;
-    padding: 10px;
+    padding: 5px;
     border: 1px solid black;
     border-radius: 5px;
     text-align: left;

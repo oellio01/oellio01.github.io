@@ -1,27 +1,27 @@
     
-    body {
-        
-        text-align: center;
-        font-family: 'Monoton';
-    }
+body {
 
-    ul {
-        list-style-type: none;
-    }
+    text-align: center;
+    font-family: 'Monoton';
+}
 
-    a {
-        color: #000000;
-        text-decoration: none;
-    }
+ul {
+    list-style-type: none;
+}
 
-    a:hover {
-        color: blue;
-    }
+a {
+    color: #000000;
+    text-decoration: none;
+}
 
-    p img {
-        width: 100%;
-        max-width: 500px;
-    }
+a:hover {
+    color: blue;
+}
+
+p img {
+    width: 100%;
+    max-width: 500px;
+}
 
 
 @media screen and (max-width: 800px) {

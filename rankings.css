@@ -4,30 +4,16 @@ body {
 }
 
 div {
-    border: 5px solid black;
-    margin: 10px;
-    width: 325px;
-    height: 325px;
-    float: left;
-    overflow: hidden;
-    font-family: cursive;
-}
-
-h2 {
-    font-size: 60px;
-}
-
-h3 {
-    font-size: 20px;
-}
-
-div:hover {
-    color: white;
-    background: black;
-}
-
-h5 {
-    font-size: 12px;
+    font-family: 'Fredericka the Great';
+    font-size: 18px;
+    max-width: 600px;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    align-self: center;
+    margin: auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
 }
 
 ul {
@@ -37,6 +23,12 @@ ul {
 a {
     color: #000000;
     text-decoration: none;
+}
+
+div a {
+    display: block;
+    text-align: center;
+    padding: 5px;
 }
 
 a:hover {
