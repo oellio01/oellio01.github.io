@@ -1,0 +1,142 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <!-- Information about the page -->
+    <title>Owen Elliott Golf</title>
+    <link href='//fonts.googleapis.com/css?family=Monoton' rel='stylesheet'>
+    <link href='//fonts.googleapis.com/css?family=Fredericka the Great' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab:100i" rel="stylesheet">
+    <link rel="stylesheet" href="covid19.css" />
+
+<style>
+.slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 15px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+    <h1><a href="index.html"> Owen Fairclough Elliott</a> </h1>
+    <hr/>
+    <ul>
+        <li><a href="resume.html">RESUME</a></li>
+        <li><a href="golf.html">GOLF</a></li>
+        <li><a href="musings.html">MUSINGS</a></li>
+        <li><a href="rankings.html">RANKINGS</a></li>
+        <li><a href="covid19.html">Covid19</a></li>
+    </ul>
+    <hr/>
+
+    <div class="slidecontainer">
+        <p>Population : <span id="pop_output"></span></p>
+        <input type="range" min="0" max="8000000000" value="328000000" Step="10000" class="slider" id="Population">
+        
+        <p>Population without Antibodies : <span id="anti_output"></span> %</p>
+        <input type="range" min="75" max="100" value="97" Step="0.1" class="slider" id="Antibodies">
+    
+        <p>Population Infected Before Vaccine : <span id="vaccine_output"></span> %</p>
+        <input type="range" min="1" max="100" value="60" Step="0.1" class="slider" id="Vaccine">
+  
+        <p>Mortality Rate without Access to Hospital Care : <span id="mortality_output"></span> %</p>
+        <input type="range" min="0" max="2" value=".8" Step="0.01" class="slider" id="Mortality">
+    
+        <p>Percent Saved with Hospital Care : <span id="hospital_output"></span> %</p>
+        <input type="range" min="1" max="50" value="10" Step="0.1" class="slider" id="Hospital">
+        
+        <h1># People Saved as a Result of Social Distancing Keeping Hospital Care Available <span id="pop_saved"></span></h1>
+    </div>
+
+
+    <script>
+        function formatNumber(num) {
+            return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+        }
+        
+        var pop = document.getElementById("Population");
+        var pop_output = document.getElementById("pop_output");
+        pop_output.innerHTML = formatNumber(pop.value);
+        
+        var anti = document.getElementById("Antibodies");
+        var anti_output = document.getElementById("anti_output");
+        anti_output.innerHTML = anti.value;
+        
+        var vaccine = document.getElementById("Vaccine");
+        var vaccine_output = document.getElementById("vaccine_output");
+        vaccine_output.innerHTML = vaccine.value;
+        
+        var mortality = document.getElementById("Mortality");
+        var mortality_output = document.getElementById("mortality_output");
+        mortality_output.innerHTML = mortality.value;
+        
+        var hospital = document.getElementById("Hospital");
+        var hospital_output = document.getElementById("hospital_output");
+        hospital_output.innerHTML = hospital.value;
+        
+        var pop_saved = document.getElementById("pop_saved");
+        pop_saved.innerHTML = formatNumber(( pop.value * (anti.value/100) * (vaccine.value/100) * (mortality.value/100) * (hospital.value/100) ).toFixed(0)); 
+
+        pop.oninput = function() {
+            pop_output.innerHTML = formatNumber(this.value);
+            pop_saved.innerHTML = formatNumber(( pop.value * (anti.value/100) * (vaccine.value/100) * (mortality.value/100) * (hospital.value/100) ).toFixed(0)); 
+        }
+
+        anti.oninput = function() {
+            anti_output.innerHTML = this.value;
+            pop_saved.innerHTML = formatNumber(( pop.value * (anti.value/100) * (vaccine.value/100) * (mortality.value/100) * (hospital.value/100) ).toFixed(0)); 
+        }
+
+        vaccine.oninput = function() {
+            vaccine_output.innerHTML = this.value;
+            pop_saved.innerHTML = formatNumber(( pop.value * (anti.value/100) * (vaccine.value/100) * (mortality.value/100) * (hospital.value/100) ).toFixed(0)); 
+        }
+
+        mortality.oninput = function() {
+            mortality_output.innerHTML = this.value;
+            pop_saved.innerHTML = formatNumber(( pop.value * (anti.value/100) * (vaccine.value/100) * (mortality.value/100) * (hospital.value/100) ).toFixed(0)); 
+        }
+
+        hospital.oninput = function() {
+            hospital_output.innerHTML = this.value;
+            pop_saved.innerHTML = formatNumber(( pop.value * (anti.value/100) * (vaccine.value/100) * (mortality.value/100) * (hospital.value/100) ).toFixed(0)); 
+        }
+    </script>
+
+</body>
+
+</html>

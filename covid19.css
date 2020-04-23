@@ -1,0 +1,56 @@
+body {
+    font-family: 'Monoton';
+    text-align: center;
+}
+
+h5 {
+    font-family: 'Josefin Slab', serif;
+}
+
+div {
+    font-family: 'Fredericka the Great';
+    font-size: 18px;
+    max-width: 900px;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    align-self: center;
+    margin: auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+a {
+    color: #000000;
+    text-decoration: none;
+}
+
+div a {
+    display: block;
+    text-align: center;
+    padding: 5px;
+}
+
+a:hover {
+    color: blue;
+}
+
+@media screen and (max-width: 800px) {
+    li {
+        display: block;
+        padding: 5px;
+    }
+}
+
+@media screen and (min-width: 801px) {
+    li {
+        display: inline;
+        margin: 30px;
+    }
+}
+
+
