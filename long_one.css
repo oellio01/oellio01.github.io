@@ -43,7 +43,7 @@ a:hover {
     }
 }
 
-div {
+.article {
     max-width: 900px;
     padding: 5px;
     border: 1px solid black;
@@ -64,3 +64,11 @@ p.indented {
     padding-left: 40pt;   
     padding-right: 40pt; 
 }
+
+.tableOfContents {
+    text-align: center;
+    font-size: 22px;
+    word-spacing: 30px;
+}
+
+
