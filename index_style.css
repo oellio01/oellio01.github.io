@@ -1,8 +1,11 @@
-    
 body {
 
     text-align: center;
     font-family: 'Monoton';
+}
+
+h1 {
+  word-spacing: 15px;
 }
 
 ul {

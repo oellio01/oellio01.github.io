@@ -3,6 +3,10 @@ body {
     text-align: center;
 }
 
+h1 {
+  word-spacing: 15px;
+}
+
 div {
     border: 5px solid black;
     margin: 10px;
