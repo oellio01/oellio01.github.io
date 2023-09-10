@@ -1,27 +1,33 @@
-const tripLinks = [
-    { 
-        title: "Paris", 
-        description: "Paris is the capital city of France and a popular tourist destination.",
-        carouselImages: [ "https://oellio01.github.io/pictures/Homepage_photos/Website%20Photos/crested_butte.PNG", "https://oellio01.github.io/pictures/Homepage_photos/Website%20Photos/sky_cabin_overhead.jpg",
-        ],
-    },
-    { 
-        title: "Barcelona", 
-        description: "Barcelona is a vibrant city in Spain, known for its art, architecture, and beautiful beaches.",
-        carouselImages: [ "https://oellio01.github.io/pictures/Homepage_photos/Website%20Photos/crested_butte.PNG", "https://oellio01.github.io/pictures/Homepage_photos/Website%20Photos/sky_cabin_overhead.jpg",
-        ],
-    },
-];
+let tripLinks = [];
 
-// Adds trip links to the specified container
+async function loadListItemsFromFirebase() {
+    const snapshot = await firebase.database().ref('tripLinks').once('value');
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        return Object.keys(data).map(key => data[key]);
+    }
+    return tripLinks;
+}
+
+function saveListItemsToFirebase() {
+    firebase.database().ref('tripLinks').set(tripLinks)
+        .then(() => {
+            console.log('List items saved successfully');
+        })
+        .catch((error) => {
+            console.error('Error saving list items:', error);
+        });
+}
+
 function addTripLinks(links, container) {
+    container.innerHTML = ""; // Clear the container before adding items
     links.forEach((link, tripIndex) => {
         const tripItem = createTripItem(link, tripIndex);
         container.appendChild(tripItem);
     });
+    saveListItemsToFirebase(); // Save the list items to Firebase
 }
 
-// Creates a single trip item element
 function createTripItem(link, tripIndex) {
     const tripItem = document.createElement("div");
     tripItem.className = "trip-item";
@@ -39,7 +45,6 @@ function createTripItem(link, tripIndex) {
     return tripItem;
 }
 
-// Creates the title link element for a trip item
 function createTitleLink(link) {
     const titleLink = document.createElement("a");
     titleLink.href = "#";
@@ -48,7 +53,6 @@ function createTitleLink(link) {
     return titleLink;
 }
 
-// Creates the collapsible content element for a trip item
 function createCollapsibleContent(link, tripIndex) {
     const collapsibleContent = document.createElement("div");
     collapsibleContent.className = "collapsible-content";
@@ -57,24 +61,24 @@ function createCollapsibleContent(link, tripIndex) {
     const description = createDescription(link);
     collapsibleContent.appendChild(description);
 
-    const carousel = createCarousel(link, tripIndex);
-    collapsibleContent.appendChild(carousel);
+    if (link.carouselImages && link.carouselImages.length > 0) {
+        const carousel = createCarousel(link, tripIndex);
+        collapsibleContent.appendChild(carousel);
+    }
 
     return collapsibleContent;
 }
 
-// Creates the description element for a trip item
 function createDescription(link) {
     const description = document.createElement("p");
     description.innerHTML = link.description;
     return description;
 }
 
-// Creates the carousel element for a trip item
 function createCarousel(link, tripIndex) {
     const carouselWrapper = document.createElement("div");
     carouselWrapper.className = "carousel-wrapper";
-    
+
     const carouselId = `tripCarousel${tripIndex}`;
 
     const carousel = document.createElement("div");
@@ -147,14 +151,87 @@ function createCarousel(link, tripIndex) {
     return carouselWrapper;
 }
 
-// Toggles the display of the collapsible content element
 function toggleCollapsibleContent(collapsibleContent) {
+    const allCollapsibleContents = document.querySelectorAll(".collapsible-content");
+
+    allCollapsibleContents.forEach((content) => {
+        if (content !== collapsibleContent && content.style.display === "block") {
+            content.style.display = "none";
+        }
+    });
+
     const currentDisplay = collapsibleContent.style.display;
     collapsibleContent.style.display = currentDisplay === "block" ? "none" : "block";
 }
 
-// Adds trip links to the container when the DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
+async function addNewListItem() {
+    const titleInput = document.getElementById("title").value;
+    const descriptionInput = document.getElementById("description").value;
+    const imagesInput = document.getElementById("images").files;
+
+    if (!titleInput || !descriptionInput) return;
+
+    const carouselImages = await uploadImages(imagesInput); // Pass the imagesInput to the uploadImages function
+
+    const newItem = {
+        title: titleInput,
+        description: descriptionInput,
+        carouselImages: carouselImages.length > 0 ? carouselImages : [],
+    };
+
+    tripLinks.push(newItem);
+    addTripLinks(tripLinks, document.getElementById("trips"));
+}
+
+async function uploadImages(imagesInput) {
+    const storageRef = firebase.storage().ref();
+    const uploadedImages = [];
+
+    for (let i = 0; i < imagesInput.length; i++) {
+        const imageFile = imagesInput[i];
+
+        try {
+            const metadata = {
+                contentType: imageFile.type,
+            };
+            const uniqueId = new Date().getTime();
+            const imageRef = storageRef.child(`images/${uniqueId}_${imageFile.name}`);
+            const uploadTask = await imageRef.put(imageFile, metadata);
+            const downloadURL = await uploadTask.ref.getDownloadURL();
+            uploadedImages.push(downloadURL);
+        } catch (error) {
+            console.error("Error uploading image:", error);
+        }
+    }
+
+    return uploadedImages;
+}
+
+async function deleteListItem() {
+    const itemTitle = document.getElementById("itemTitle").value;
+
+    if (!itemTitle) return;
+
+    tripLinks = tripLinks.filter(link => link.title !== itemTitle);
+    addTripLinks(tripLinks, document.getElementById("trips"));
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
     const tripContainer = document.getElementById("trips");
+    tripLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
     addTripLinks(tripLinks, tripContainer);
+    
+    // Add this event listener:
+    const addNewItemForm = document.getElementById("addNewItemForm");
+    addNewItemForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent the default form submission
+        await addNewListItem();
+    });
+
+    // Add a new event listener for the deleteItemForm:
+    const deleteItemForm = document.getElementById("deleteItemForm");
+    deleteItemForm.addEventListener("submit", (event) => {
+        event.preventDefault(); // Prevent the default form submission
+        deleteListItem();
+    });
 });

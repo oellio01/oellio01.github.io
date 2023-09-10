@@ -10,20 +10,39 @@
     <link href="https://fonts.googleapis.com/css?family=Josefin+Slab:100i" rel="stylesheet">
     <link rel="stylesheet" href="travel.css" />
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <!-- Add the Firebase Realtime Database SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Add the Firebase Storage SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     
     <!-- External scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDHeB5POwbGsqTgMuhCjdW9V-5FW8pTm9A",
+        authDomain: "owen-and-isabel.firebaseapp.com",
+        databaseURL: "https://owen-and-isabel-default-rtdb.firebaseio.com",
+        projectId: "owen-and-isabel",
+        storageBucket: "owen-and-isabel.appspot.com",
+        messagingSenderId: "186941895088",
+        appId: "1:186941895088:web:605754fbe0f8305664a675"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    
     <script src="travel.js" defer></script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhqwLMiLd30A9NJ-AbC4-8LNDCk89RgGg&callback=initMap"></script>
 </head>
 
-<body class="custom-body">
-    <div class="main-container">
-        <!-- Your existing HTML content -->
-    </div>
-</body>
 <body class="custom-body">
     <h1><a href="travel.html"> Owen And Isabel</a> </h1>
     <hr/>
@@ -42,6 +61,25 @@
     <div class="ranking" id="trips">
         <h2>Trips</h2>
     </div>
+
+    <form id="addNewItemForm">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title" required><br>
+      
+      <label for="description">Description:</label>
+      <input type="text" id="description" name="description" required><br>
+      
+      <label for="images">Images:</label>
+      <input type="file" id="images" name="images" accept="image/*" multiple><br>
+      
+      <input type="submit" value="Add new item">
+    </form>
+    
+    <form id="deleteItemForm">
+      <label for="itemTitle">Item Title:</label>
+      <input type="text" id="itemTitle" name="itemTitle" required><br>
+      <input type="submit" value="Delete item">
+    </form>
 </body>
 
 </html>
