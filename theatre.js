@@ -1,16 +1,16 @@
-let tripLinks = [];
+let theatreLinks = [];
 
 async function loadListItemsFromFirebase() {
-    const snapshot = await firebase.database().ref('tripLinks').once('value');
+    const snapshot = await firebase.database().ref('theatreLinks').once('value');
     if (snapshot.exists()) {
         const data = snapshot.val();
         return Object.keys(data).map(key => data[key]);
     }
-    return tripLinks;
+    return theatreLinks;
 }
 
 function saveListItemsToFirebase() {
-    firebase.database().ref('tripLinks').set(tripLinks)
+    firebase.database().ref('theatreLinks').set(theatreLinks)
         .then(() => {
             console.log('List items saved successfully');
         })
@@ -179,8 +179,8 @@ async function addNewListItem() {
         carouselImages: carouselImages.length > 0 ? carouselImages : [],
     };
 
-    tripLinks.push(newItem);
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    theatreLinks.push(newItem);
+    addTripLinks(theatreLinks, document.getElementById("trips"));
 }
 
 async function uploadImages(imagesInput) {
@@ -212,63 +212,30 @@ async function deleteListItem() {
 
     if (!itemTitle) return;
 
-    tripLinks = tripLinks.filter(link => link.title !== itemTitle);
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    theatreLinks = theatreLinks.filter(link => link.title !== itemTitle);
+    addTripLinks(theatreLinks, document.getElementById("trips"));
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const tripContainer = document.getElementById("trips");
-    tripLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
-    addTripLinks(tripLinks, tripContainer);
-    
-    // Add this event listener:
+    const theatreContainer = document.getElementById("trips");
+    theatreLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
+    addTripLinks(theatreLinks, theatreContainer);
+
     const addNewItemForm = document.getElementById("addNewItemForm");
     addNewItemForm.addEventListener("submit", async (event) => {
         event.preventDefault(); // Prevent the default form submission
         await addNewListItem();
     });
 
-    // Add a new event listener for the deleteItemForm:
     const deleteItemForm = document.getElementById("deleteItemForm");
     deleteItemForm.addEventListener("submit", (event) => {
         event.preventDefault(); // Prevent the default form submission
         deleteListItem();
     });
-});
 
-async function editListItem() {
-    const itemTitle = document.getElementById("editItemTitle").value;
-    const newTitle = document.getElementById("editTitle").value;
-    const newDescription = document.getElementById("editDescription").value;
-    const newImagesInput = document.getElementById("editImages").files;
-
-    if (!itemTitle) return;
-
-    const newItemIndex = tripLinks.findIndex(link => link.title === itemTitle);
-    if (newItemIndex === -1) {
-        console.error("Item not found");
-        return;
-    }
-
-    if (newTitle) {
-        tripLinks[newItemIndex].title = newTitle;
-    }
-
-    if (newDescription) {
-        tripLinks[newItemIndex].description = newDescription;
-    }
-
-    if (newImagesInput.length > 0) {
-        const newCarouselImages = await uploadImages(newImagesInput);
-        tripLinks[newItemIndex].carouselImages = newCarouselImages;
-    }
-
-    addTripLinks(tripLinks, document.getElementById("trips"));
-}
-
-// Add a new event listener for the editItemForm:
-const editItemForm = document.getElementById("editItemForm");
-editItemForm.addEventListener("submit", async (event) => {
-    event.preventDefault(); // Prevent the default form submission
-    await editListItem();
+    const editItemForm = document.getElementById("editItemForm");
+    editItemForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent the default form submission
+        await editListItem();
+    });
 });

@@ -1,16 +1,16 @@
-let tripLinks = [];
+let dayTripLinks = [];
 
 async function loadListItemsFromFirebase() {
-    const snapshot = await firebase.database().ref('tripLinks').once('value');
+    const snapshot = await firebase.database().ref('dayTripLinks').once('value');
     if (snapshot.exists()) {
         const data = snapshot.val();
         return Object.keys(data).map(key => data[key]);
     }
-    return tripLinks;
+    return dayTripLinks;
 }
 
 function saveListItemsToFirebase() {
-    firebase.database().ref('tripLinks').set(tripLinks)
+    firebase.database().ref('dayTripLinks').set(dayTripLinks)
         .then(() => {
             console.log('List items saved successfully');
         })
@@ -217,9 +217,9 @@ async function deleteListItem() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const tripContainer = document.getElementById("trips");
-    tripLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
-    addTripLinks(tripLinks, tripContainer);
+    const hikesContainer = document.getElementById("trips");
+    dayTripLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
+    addTripLinks(dayTripLinks, hikesContainer);
     
     // Add this event listener:
     const addNewItemForm = document.getElementById("addNewItemForm");

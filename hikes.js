@@ -1,16 +1,16 @@
-let tripLinks = [];
+let hikesLinks = [];
 
 async function loadListItemsFromFirebase() {
-    const snapshot = await firebase.database().ref('tripLinks').once('value');
+    const snapshot = await firebase.database().ref('hikesLinks').once('value');
     if (snapshot.exists()) {
         const data = snapshot.val();
         return Object.keys(data).map(key => data[key]);
     }
-    return tripLinks;
+    return hikesLinks;
 }
 
 function saveListItemsToFirebase() {
-    firebase.database().ref('tripLinks').set(tripLinks)
+    firebase.database().ref('hikesLinks').set(hikesLinks)
         .then(() => {
             console.log('List items saved successfully');
         })
@@ -18,6 +18,7 @@ function saveListItemsToFirebase() {
             console.error('Error saving list items:', error);
         });
 }
+
 
 function addTripLinks(links, container) {
     container.innerHTML = ""; // Clear the container before adding items
@@ -217,9 +218,9 @@ async function deleteListItem() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const tripContainer = document.getElementById("trips");
-    tripLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
-    addTripLinks(tripLinks, tripContainer);
+    const hikesContainer = document.getElementById("trips");
+    hikesLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
+    addTripLinks(hikesLinks, hikesContainer);
     
     // Add this event listener:
     const addNewItemForm = document.getElementById("addNewItemForm");
