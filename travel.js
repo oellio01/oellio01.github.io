@@ -40,9 +40,9 @@ function createTripItem(link, tripIndex) {
     };
     tripItem.ondrop = (event) => {
         event.preventDefault();
-        const srcIndex = event.dataTransfer.getData("text/plain");
+        const srcIndex = parseInt(event.dataTransfer.getData("text/plain"), 10);
         const destIndex = tripIndex;
-        swapTripLinks(srcIndex, destIndex);
+        moveTripLink(srcIndex, destIndex);
         addTripLinks(tripLinks, document.getElementById("trips"));
     };
 
@@ -230,10 +230,11 @@ async function deleteListItem() {
     addTripLinks(tripLinks, document.getElementById("trips"));
 }
 
-function swapTripLinks(srcIndex, destIndex) {
-    const temp = tripLinks[srcIndex];
-    tripLinks[srcIndex] = tripLinks[destIndex];
-    tripLinks[destIndex] = temp;
+function moveTripLink(srcIndex, destIndex) {
+    if (srcIndex === destIndex) return;
+
+    const movingItem = tripLinks.splice(srcIndex, 1)[0];
+    tripLinks.splice(destIndex, 0, movingItem);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
