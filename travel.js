@@ -31,6 +31,20 @@ function addTripLinks(links, container) {
 function createTripItem(link, tripIndex) {
     const tripItem = document.createElement("div");
     tripItem.className = "trip-item";
+    tripItem.setAttribute("draggable", "true");
+    tripItem.ondragstart = (event) => {
+        event.dataTransfer.setData("text/plain", tripIndex);
+    };
+    tripItem.ondragover = (event) => {
+        event.preventDefault();
+    };
+    tripItem.ondrop = (event) => {
+        event.preventDefault();
+        const srcIndex = event.dataTransfer.getData("text/plain");
+        const destIndex = tripIndex;
+        swapTripLinks(srcIndex, destIndex);
+        addTripLinks(tripLinks, document.getElementById("trips"));
+    };
 
     const titleLink = createTitleLink(link);
     tripItem.appendChild(titleLink);
@@ -216,23 +230,33 @@ async function deleteListItem() {
     addTripLinks(tripLinks, document.getElementById("trips"));
 }
 
+function swapTripLinks(srcIndex, destIndex) {
+    const temp = tripLinks[srcIndex];
+    tripLinks[srcIndex] = tripLinks[destIndex];
+    tripLinks[destIndex] = temp;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const tripContainer = document.getElementById("trips");
-    tripLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
+    tripLinks = await loadListItemsFromFirebase();
     addTripLinks(tripLinks, tripContainer);
-    
-    // Add this event listener:
+
     const addNewItemForm = document.getElementById("addNewItemForm");
     addNewItemForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         await addNewListItem();
     });
 
-    // Add a new event listener for the deleteItemForm:
     const deleteItemForm = document.getElementById("deleteItemForm");
     deleteItemForm.addEventListener("submit", (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         deleteListItem();
+    });
+
+    const editItemForm = document.getElementById("editItemForm");
+    editItemForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await editListItem();
     });
 });
 
