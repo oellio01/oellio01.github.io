@@ -19,30 +19,44 @@ function saveListItemsToFirebase() {
         });
 }
 
-function addTripLinks(links, container) {
+function addtheatreLinks(links, container) {
     container.innerHTML = ""; // Clear the container before adding items
-    links.forEach((link, tripIndex) => {
-        const tripItem = createTripItem(link, tripIndex);
-        container.appendChild(tripItem);
+    links.forEach((link, theatreIndex) => {
+        const theatreItem = createtheatreItem(link, theatreIndex);
+        container.appendChild(theatreItem);
     });
     saveListItemsToFirebase(); // Save the list items to Firebase
 }
 
-function createTripItem(link, tripIndex) {
-    const tripItem = document.createElement("div");
-    tripItem.className = "trip-item";
+function createtheatreItem(link, theatreIndex) {
+    const theatreItem = document.createElement("div");
+    theatreItem.className = "theatre-item";
+    theatreItem.setAttribute("draggable", "true");
+    theatreItem.ondragstart = (event) => {
+        event.dataTransfer.setData("text/plain", theatreIndex);
+    };
+    theatreItem.ondragover = (event) => {
+        event.preventDefault();
+    };
+    theatreItem.ondrop = (event) => {
+        event.preventDefault();
+        const srcIndex = parseInt(event.dataTransfer.getData("text/plain"), 10);
+        const destIndex = theatreIndex;
+        movetheatreLink(srcIndex, destIndex);
+        addtheatreLinks(theatreLinks, document.getElementById("theatres"));
+    };
 
     const titleLink = createTitleLink(link);
-    tripItem.appendChild(titleLink);
+    theatreItem.appendChild(titleLink);
 
-    const collapsibleContent = createCollapsibleContent(link, tripIndex);
-    tripItem.appendChild(collapsibleContent);
+    const collapsibleContent = createCollapsibleContent(link, theatreIndex);
+    theatreItem.appendChild(collapsibleContent);
 
     titleLink.onclick = () => {
         toggleCollapsibleContent(collapsibleContent);
     };
 
-    return tripItem;
+    return theatreItem;
 }
 
 function createTitleLink(link) {
@@ -53,7 +67,7 @@ function createTitleLink(link) {
     return titleLink;
 }
 
-function createCollapsibleContent(link, tripIndex) {
+function createCollapsibleContent(link, theatreIndex) {
     const collapsibleContent = document.createElement("div");
     collapsibleContent.className = "collapsible-content";
     collapsibleContent.style.display = "none";
@@ -62,7 +76,7 @@ function createCollapsibleContent(link, tripIndex) {
     collapsibleContent.appendChild(description);
 
     if (link.carouselImages && link.carouselImages.length > 0) {
-        const carousel = createCarousel(link, tripIndex);
+        const carousel = createCarousel(link, theatreIndex);
         collapsibleContent.appendChild(carousel);
     }
 
@@ -75,11 +89,11 @@ function createDescription(link) {
     return description;
 }
 
-function createCarousel(link, tripIndex) {
+function createCarousel(link, theatreIndex) {
     const carouselWrapper = document.createElement("div");
     carouselWrapper.className = "carousel-wrapper";
 
-    const carouselId = `tripCarousel${tripIndex}`;
+    const carouselId = `theatreCarousel${theatreIndex}`;
 
     const carousel = document.createElement("div");
     carousel.className = "carousel slide";
@@ -180,7 +194,7 @@ async function addNewListItem() {
     };
 
     theatreLinks.push(newItem);
-    addTripLinks(theatreLinks, document.getElementById("trips"));
+    addtheatreLinks(theatreLinks, document.getElementById("theatres"));
 }
 
 async function uploadImages(imagesInput) {
@@ -213,29 +227,73 @@ async function deleteListItem() {
     if (!itemTitle) return;
 
     theatreLinks = theatreLinks.filter(link => link.title !== itemTitle);
-    addTripLinks(theatreLinks, document.getElementById("trips"));
+    addtheatreLinks(theatreLinks, document.getElementById("theatres"));
+}
+
+function movetheatreLink(srcIndex, destIndex) {
+    if (srcIndex === destIndex) return;
+
+    const movingItem = theatreLinks.splice(srcIndex, 1)[0];
+    theatreLinks.splice(destIndex, 0, movingItem);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const theatreContainer = document.getElementById("trips");
-    theatreLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
-    addTripLinks(theatreLinks, theatreContainer);
+    const theatreContainer = document.getElementById("theatres");
+    theatreLinks = await loadListItemsFromFirebase();
+    addtheatreLinks(theatreLinks, theatreContainer);
 
     const addNewItemForm = document.getElementById("addNewItemForm");
     addNewItemForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         await addNewListItem();
     });
 
     const deleteItemForm = document.getElementById("deleteItemForm");
     deleteItemForm.addEventListener("submit", (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         deleteListItem();
     });
 
     const editItemForm = document.getElementById("editItemForm");
     editItemForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         await editListItem();
     });
+});
+
+async function editListItem() {
+    const itemTitle = document.getElementById("editItemTitle").value;
+    const newTitle = document.getElementById("editTitle").value;
+    const newDescription = document.getElementById("editDescription").value;
+    const newImagesInput = document.getElementById("editImages").files;
+
+    if (!itemTitle) return;
+
+    const newItemIndex = theatreLinks.findIndex(link => link.title === itemTitle);
+    if (newItemIndex === -1) {
+        console.error("Item not found");
+        return;
+    }
+
+    if (newTitle) {
+        theatreLinks[newItemIndex].title = newTitle;
+    }
+
+    if (newDescription) {
+        theatreLinks[newItemIndex].description = newDescription;
+    }
+
+    if (newImagesInput.length > 0) {
+        const newCarouselImages = await uploadImages(newImagesInput);
+        theatreLinks[newItemIndex].carouselImages = newCarouselImages;
+    }
+
+    addtheatreLinks(theatreLinks, document.getElementById("theatres"));
+}
+
+// Add a new event listener for the editItemForm:
+const editItemForm = document.getElementById("editItemForm");
+editItemForm.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Prevent the default form submission
+    await editListItem();
 });
