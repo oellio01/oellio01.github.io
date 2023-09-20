@@ -1,16 +1,16 @@
-let bitesLinks = [];
+let biteLinks = [];
 
 async function loadListItemsFromFirebase() {
-    const snapshot = await firebase.database().ref('bitesLinks').once('value');
+    const snapshot = await firebase.database().ref('biteLinks').once('value');
     if (snapshot.exists()) {
         const data = snapshot.val();
         return Object.keys(data).map(key => data[key]);
     }
-    return bitesLinks;
+    return biteLinks;
 }
 
 function saveListItemsToFirebase() {
-    firebase.database().ref('bitesLinks').set(bitesLinks)
+    firebase.database().ref('biteLinks').set(biteLinks)
         .then(() => {
             console.log('List items saved successfully');
         })
@@ -19,30 +19,44 @@ function saveListItemsToFirebase() {
         });
 }
 
-function addTripLinks(links, container) {
+function addbiteLinks(links, container) {
     container.innerHTML = ""; // Clear the container before adding items
-    links.forEach((link, tripIndex) => {
-        const tripItem = createTripItem(link, tripIndex);
-        container.appendChild(tripItem);
+    links.forEach((link, biteIndex) => {
+        const biteItem = createbiteItem(link, biteIndex);
+        container.appendChild(biteItem);
     });
     saveListItemsToFirebase(); // Save the list items to Firebase
 }
 
-function createTripItem(link, tripIndex) {
-    const tripItem = document.createElement("div");
-    tripItem.className = "trip-item";
+function createbiteItem(link, biteIndex) {
+    const biteItem = document.createElement("div");
+    biteItem.className = "bite-item";
+    biteItem.setAttribute("draggable", "true");
+    biteItem.ondragstart = (event) => {
+        event.dataTransfer.setData("text/plain", biteIndex);
+    };
+    biteItem.ondragover = (event) => {
+        event.preventDefault();
+    };
+    biteItem.ondrop = (event) => {
+        event.preventDefault();
+        const srcIndex = parseInt(event.dataTransfer.getData("text/plain"), 10);
+        const destIndex = biteIndex;
+        movebiteLink(srcIndex, destIndex);
+        addbiteLinks(biteLinks, document.getElementById("bites"));
+    };
 
     const titleLink = createTitleLink(link);
-    tripItem.appendChild(titleLink);
+    biteItem.appendChild(titleLink);
 
-    const collapsibleContent = createCollapsibleContent(link, tripIndex);
-    tripItem.appendChild(collapsibleContent);
+    const collapsibleContent = createCollapsibleContent(link, biteIndex);
+    biteItem.appendChild(collapsibleContent);
 
     titleLink.onclick = () => {
         toggleCollapsibleContent(collapsibleContent);
     };
 
-    return tripItem;
+    return biteItem;
 }
 
 function createTitleLink(link) {
@@ -53,7 +67,7 @@ function createTitleLink(link) {
     return titleLink;
 }
 
-function createCollapsibleContent(link, tripIndex) {
+function createCollapsibleContent(link, biteIndex) {
     const collapsibleContent = document.createElement("div");
     collapsibleContent.className = "collapsible-content";
     collapsibleContent.style.display = "none";
@@ -62,7 +76,7 @@ function createCollapsibleContent(link, tripIndex) {
     collapsibleContent.appendChild(description);
 
     if (link.carouselImages && link.carouselImages.length > 0) {
-        const carousel = createCarousel(link, tripIndex);
+        const carousel = createCarousel(link, biteIndex);
         collapsibleContent.appendChild(carousel);
     }
 
@@ -75,11 +89,11 @@ function createDescription(link) {
     return description;
 }
 
-function createCarousel(link, tripIndex) {
+function createCarousel(link, biteIndex) {
     const carouselWrapper = document.createElement("div");
     carouselWrapper.className = "carousel-wrapper";
 
-    const carouselId = `tripCarousel${tripIndex}`;
+    const carouselId = `biteCarousel${biteIndex}`;
 
     const carousel = document.createElement("div");
     carousel.className = "carousel slide";
@@ -179,8 +193,8 @@ async function addNewListItem() {
         carouselImages: carouselImages.length > 0 ? carouselImages : [],
     };
 
-    tripLinks.push(newItem);
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    biteLinks.push(newItem);
+    addbiteLinks(biteLinks, document.getElementById("bites"));
 }
 
 async function uploadImages(imagesInput) {
@@ -212,27 +226,38 @@ async function deleteListItem() {
 
     if (!itemTitle) return;
 
-    tripLinks = tripLinks.filter(link => link.title !== itemTitle);
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    biteLinks = biteLinks.filter(link => link.title !== itemTitle);
+    addbiteLinks(biteLinks, document.getElementById("bites"));
+}
+
+function movebiteLink(srcIndex, destIndex) {
+    if (srcIndex === destIndex) return;
+
+    const movingItem = biteLinks.splice(srcIndex, 1)[0];
+    biteLinks.splice(destIndex, 0, movingItem);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const bitesContainer = document.getElementById("trips");
-    bitesLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
-    addTripLinks(bitesLinks, bitesContainer);
-    
-    // Add this event listener:
+    const biteContainer = document.getElementById("bites");
+    biteLinks = await loadListItemsFromFirebase();
+    addbiteLinks(biteLinks, biteContainer);
+
     const addNewItemForm = document.getElementById("addNewItemForm");
     addNewItemForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         await addNewListItem();
     });
 
-    // Add a new event listener for the deleteItemForm:
     const deleteItemForm = document.getElementById("deleteItemForm");
     deleteItemForm.addEventListener("submit", (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         deleteListItem();
+    });
+
+    const editItemForm = document.getElementById("editItemForm");
+    editItemForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await editListItem();
     });
 });
 
@@ -244,26 +269,26 @@ async function editListItem() {
 
     if (!itemTitle) return;
 
-    const newItemIndex = tripLinks.findIndex(link => link.title === itemTitle);
+    const newItemIndex = biteLinks.findIndex(link => link.title === itemTitle);
     if (newItemIndex === -1) {
         console.error("Item not found");
         return;
     }
 
     if (newTitle) {
-        tripLinks[newItemIndex].title = newTitle;
+        biteLinks[newItemIndex].title = newTitle;
     }
 
     if (newDescription) {
-        tripLinks[newItemIndex].description = newDescription;
+        biteLinks[newItemIndex].description = newDescription;
     }
 
     if (newImagesInput.length > 0) {
         const newCarouselImages = await uploadImages(newImagesInput);
-        tripLinks[newItemIndex].carouselImages = newCarouselImages;
+        biteLinks[newItemIndex].carouselImages = newCarouselImages;
     }
 
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    addbiteLinks(biteLinks, document.getElementById("bites"));
 }
 
 // Add a new event listener for the editItemForm:

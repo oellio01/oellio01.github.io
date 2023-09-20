@@ -1,16 +1,16 @@
-let dayTripLinks = [];
+let day_tripLinks = [];
 
 async function loadListItemsFromFirebase() {
-    const snapshot = await firebase.database().ref('dayTripLinks').once('value');
+    const snapshot = await firebase.database().ref('day_tripLinks').once('value');
     if (snapshot.exists()) {
         const data = snapshot.val();
         return Object.keys(data).map(key => data[key]);
     }
-    return dayTripLinks;
+    return day_tripLinks;
 }
 
 function saveListItemsToFirebase() {
-    firebase.database().ref('dayTripLinks').set(dayTripLinks)
+    firebase.database().ref('day_tripLinks').set(day_tripLinks)
         .then(() => {
             console.log('List items saved successfully');
         })
@@ -19,30 +19,44 @@ function saveListItemsToFirebase() {
         });
 }
 
-function addTripLinks(links, container) {
+function addday_tripLinks(links, container) {
     container.innerHTML = ""; // Clear the container before adding items
-    links.forEach((link, tripIndex) => {
-        const tripItem = createTripItem(link, tripIndex);
-        container.appendChild(tripItem);
+    links.forEach((link, day_tripIndex) => {
+        const day_tripItem = createday_tripItem(link, day_tripIndex);
+        container.appendChild(day_tripItem);
     });
     saveListItemsToFirebase(); // Save the list items to Firebase
 }
 
-function createTripItem(link, tripIndex) {
-    const tripItem = document.createElement("div");
-    tripItem.className = "trip-item";
+function createday_tripItem(link, day_tripIndex) {
+    const day_tripItem = document.createElement("div");
+    day_tripItem.className = "day_trip-item";
+    day_tripItem.setAttribute("draggable", "true");
+    day_tripItem.ondragstart = (event) => {
+        event.dataTransfer.setData("text/plain", day_tripIndex);
+    };
+    day_tripItem.ondragover = (event) => {
+        event.preventDefault();
+    };
+    day_tripItem.ondrop = (event) => {
+        event.preventDefault();
+        const srcIndex = parseInt(event.dataTransfer.getData("text/plain"), 10);
+        const destIndex = day_tripIndex;
+        moveday_tripLink(srcIndex, destIndex);
+        addday_tripLinks(day_tripLinks, document.getElementById("day_trips"));
+    };
 
     const titleLink = createTitleLink(link);
-    tripItem.appendChild(titleLink);
+    day_tripItem.appendChild(titleLink);
 
-    const collapsibleContent = createCollapsibleContent(link, tripIndex);
-    tripItem.appendChild(collapsibleContent);
+    const collapsibleContent = createCollapsibleContent(link, day_tripIndex);
+    day_tripItem.appendChild(collapsibleContent);
 
     titleLink.onclick = () => {
         toggleCollapsibleContent(collapsibleContent);
     };
 
-    return tripItem;
+    return day_tripItem;
 }
 
 function createTitleLink(link) {
@@ -53,7 +67,7 @@ function createTitleLink(link) {
     return titleLink;
 }
 
-function createCollapsibleContent(link, tripIndex) {
+function createCollapsibleContent(link, day_tripIndex) {
     const collapsibleContent = document.createElement("div");
     collapsibleContent.className = "collapsible-content";
     collapsibleContent.style.display = "none";
@@ -62,7 +76,7 @@ function createCollapsibleContent(link, tripIndex) {
     collapsibleContent.appendChild(description);
 
     if (link.carouselImages && link.carouselImages.length > 0) {
-        const carousel = createCarousel(link, tripIndex);
+        const carousel = createCarousel(link, day_tripIndex);
         collapsibleContent.appendChild(carousel);
     }
 
@@ -75,11 +89,11 @@ function createDescription(link) {
     return description;
 }
 
-function createCarousel(link, tripIndex) {
+function createCarousel(link, day_tripIndex) {
     const carouselWrapper = document.createElement("div");
     carouselWrapper.className = "carousel-wrapper";
 
-    const carouselId = `tripCarousel${tripIndex}`;
+    const carouselId = `day_tripCarousel${day_tripIndex}`;
 
     const carousel = document.createElement("div");
     carousel.className = "carousel slide";
@@ -179,8 +193,8 @@ async function addNewListItem() {
         carouselImages: carouselImages.length > 0 ? carouselImages : [],
     };
 
-    tripLinks.push(newItem);
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    day_tripLinks.push(newItem);
+    addday_tripLinks(day_tripLinks, document.getElementById("day_trips"));
 }
 
 async function uploadImages(imagesInput) {
@@ -212,27 +226,38 @@ async function deleteListItem() {
 
     if (!itemTitle) return;
 
-    tripLinks = tripLinks.filter(link => link.title !== itemTitle);
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    day_tripLinks = day_tripLinks.filter(link => link.title !== itemTitle);
+    addday_tripLinks(day_tripLinks, document.getElementById("day_trips"));
+}
+
+function moveday_tripLink(srcIndex, destIndex) {
+    if (srcIndex === destIndex) return;
+
+    const movingItem = day_tripLinks.splice(srcIndex, 1)[0];
+    day_tripLinks.splice(destIndex, 0, movingItem);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const hikesContainer = document.getElementById("trips");
-    dayTripLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
-    addTripLinks(dayTripLinks, hikesContainer);
-    
-    // Add this event listener:
+    const day_tripContainer = document.getElementById("day_trips");
+    day_tripLinks = await loadListItemsFromFirebase();
+    addday_tripLinks(day_tripLinks, day_tripContainer);
+
     const addNewItemForm = document.getElementById("addNewItemForm");
     addNewItemForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         await addNewListItem();
     });
 
-    // Add a new event listener for the deleteItemForm:
     const deleteItemForm = document.getElementById("deleteItemForm");
     deleteItemForm.addEventListener("submit", (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         deleteListItem();
+    });
+
+    const editItemForm = document.getElementById("editItemForm");
+    editItemForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await editListItem();
     });
 });
 
@@ -244,26 +269,26 @@ async function editListItem() {
 
     if (!itemTitle) return;
 
-    const newItemIndex = tripLinks.findIndex(link => link.title === itemTitle);
+    const newItemIndex = day_tripLinks.findIndex(link => link.title === itemTitle);
     if (newItemIndex === -1) {
         console.error("Item not found");
         return;
     }
 
     if (newTitle) {
-        tripLinks[newItemIndex].title = newTitle;
+        day_tripLinks[newItemIndex].title = newTitle;
     }
 
     if (newDescription) {
-        tripLinks[newItemIndex].description = newDescription;
+        day_tripLinks[newItemIndex].description = newDescription;
     }
 
     if (newImagesInput.length > 0) {
         const newCarouselImages = await uploadImages(newImagesInput);
-        tripLinks[newItemIndex].carouselImages = newCarouselImages;
+        day_tripLinks[newItemIndex].carouselImages = newCarouselImages;
     }
 
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    addday_tripLinks(day_tripLinks, document.getElementById("day_trips"));
 }
 
 // Add a new event listener for the editItemForm:

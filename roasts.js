@@ -1,16 +1,16 @@
-let roastsLinks = [];
+let roastLinks = [];
 
 async function loadListItemsFromFirebase() {
-    const snapshot = await firebase.database().ref('roastsLinks').once('value');
+    const snapshot = await firebase.database().ref('roastLinks').once('value');
     if (snapshot.exists()) {
         const data = snapshot.val();
         return Object.keys(data).map(key => data[key]);
     }
-    return roastsLinks;
+    return roastLinks;
 }
 
 function saveListItemsToFirebase() {
-    firebase.database().ref('roastsLinks').set(roastsLinks)
+    firebase.database().ref('roastLinks').set(roastLinks)
         .then(() => {
             console.log('List items saved successfully');
         })
@@ -19,30 +19,44 @@ function saveListItemsToFirebase() {
         });
 }
 
-function addTripLinks(links, container) {
+function addroastLinks(links, container) {
     container.innerHTML = ""; // Clear the container before adding items
-    links.forEach((link, tripIndex) => {
-        const tripItem = createTripItem(link, tripIndex);
-        container.appendChild(tripItem);
+    links.forEach((link, roastIndex) => {
+        const roastItem = createroastItem(link, roastIndex);
+        container.appendChild(roastItem);
     });
     saveListItemsToFirebase(); // Save the list items to Firebase
 }
 
-function createTripItem(link, tripIndex) {
-    const tripItem = document.createElement("div");
-    tripItem.className = "trip-item";
+function createroastItem(link, roastIndex) {
+    const roastItem = document.createElement("div");
+    roastItem.className = "roast-item";
+    roastItem.setAttribute("draggable", "true");
+    roastItem.ondragstart = (event) => {
+        event.dataTransfer.setData("text/plain", roastIndex);
+    };
+    roastItem.ondragover = (event) => {
+        event.preventDefault();
+    };
+    roastItem.ondrop = (event) => {
+        event.preventDefault();
+        const srcIndex = parseInt(event.dataTransfer.getData("text/plain"), 10);
+        const destIndex = roastIndex;
+        moveroastLink(srcIndex, destIndex);
+        addroastLinks(roastLinks, document.getElementById("roasts"));
+    };
 
     const titleLink = createTitleLink(link);
-    tripItem.appendChild(titleLink);
+    roastItem.appendChild(titleLink);
 
-    const collapsibleContent = createCollapsibleContent(link, tripIndex);
-    tripItem.appendChild(collapsibleContent);
+    const collapsibleContent = createCollapsibleContent(link, roastIndex);
+    roastItem.appendChild(collapsibleContent);
 
     titleLink.onclick = () => {
         toggleCollapsibleContent(collapsibleContent);
     };
 
-    return tripItem;
+    return roastItem;
 }
 
 function createTitleLink(link) {
@@ -53,7 +67,7 @@ function createTitleLink(link) {
     return titleLink;
 }
 
-function createCollapsibleContent(link, tripIndex) {
+function createCollapsibleContent(link, roastIndex) {
     const collapsibleContent = document.createElement("div");
     collapsibleContent.className = "collapsible-content";
     collapsibleContent.style.display = "none";
@@ -62,7 +76,7 @@ function createCollapsibleContent(link, tripIndex) {
     collapsibleContent.appendChild(description);
 
     if (link.carouselImages && link.carouselImages.length > 0) {
-        const carousel = createCarousel(link, tripIndex);
+        const carousel = createCarousel(link, roastIndex);
         collapsibleContent.appendChild(carousel);
     }
 
@@ -75,11 +89,11 @@ function createDescription(link) {
     return description;
 }
 
-function createCarousel(link, tripIndex) {
+function createCarousel(link, roastIndex) {
     const carouselWrapper = document.createElement("div");
     carouselWrapper.className = "carousel-wrapper";
 
-    const carouselId = `tripCarousel${tripIndex}`;
+    const carouselId = `roastCarousel${roastIndex}`;
 
     const carousel = document.createElement("div");
     carousel.className = "carousel slide";
@@ -179,8 +193,8 @@ async function addNewListItem() {
         carouselImages: carouselImages.length > 0 ? carouselImages : [],
     };
 
-    tripLinks.push(newItem);
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    roastLinks.push(newItem);
+    addroastLinks(roastLinks, document.getElementById("roasts"));
 }
 
 async function uploadImages(imagesInput) {
@@ -212,27 +226,38 @@ async function deleteListItem() {
 
     if (!itemTitle) return;
 
-    tripLinks = tripLinks.filter(link => link.title !== itemTitle);
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    roastLinks = roastLinks.filter(link => link.title !== itemTitle);
+    addroastLinks(roastLinks, document.getElementById("roasts"));
+}
+
+function moveroastLink(srcIndex, destIndex) {
+    if (srcIndex === destIndex) return;
+
+    const movingItem = roastLinks.splice(srcIndex, 1)[0];
+    roastLinks.splice(destIndex, 0, movingItem);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const roastsContainer = document.getElementById("trips");
-    roastsLinks = await loadListItemsFromFirebase(); // Load list items from Firebase
-    addTripLinks(roastsLinks, roastsContainer);
-    
-    // Add this event listener:
+    const roastContainer = document.getElementById("roasts");
+    roastLinks = await loadListItemsFromFirebase();
+    addroastLinks(roastLinks, roastContainer);
+
     const addNewItemForm = document.getElementById("addNewItemForm");
     addNewItemForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         await addNewListItem();
     });
 
-    // Add a new event listener for the deleteItemForm:
     const deleteItemForm = document.getElementById("deleteItemForm");
     deleteItemForm.addEventListener("submit", (event) => {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         deleteListItem();
+    });
+
+    const editItemForm = document.getElementById("editItemForm");
+    editItemForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        await editListItem();
     });
 });
 
@@ -244,26 +269,26 @@ async function editListItem() {
 
     if (!itemTitle) return;
 
-    const newItemIndex = tripLinks.findIndex(link => link.title === itemTitle);
+    const newItemIndex = roastLinks.findIndex(link => link.title === itemTitle);
     if (newItemIndex === -1) {
         console.error("Item not found");
         return;
     }
 
     if (newTitle) {
-        tripLinks[newItemIndex].title = newTitle;
+        roastLinks[newItemIndex].title = newTitle;
     }
 
     if (newDescription) {
-        tripLinks[newItemIndex].description = newDescription;
+        roastLinks[newItemIndex].description = newDescription;
     }
 
     if (newImagesInput.length > 0) {
         const newCarouselImages = await uploadImages(newImagesInput);
-        tripLinks[newItemIndex].carouselImages = newCarouselImages;
+        roastLinks[newItemIndex].carouselImages = newCarouselImages;
     }
 
-    addTripLinks(tripLinks, document.getElementById("trips"));
+    addroastLinks(roastLinks, document.getElementById("roasts"));
 }
 
 // Add a new event listener for the editItemForm:

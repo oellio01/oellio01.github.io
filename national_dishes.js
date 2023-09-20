@@ -1,16 +1,16 @@
-let hikeLinks = [];
+let national_dishLinks = [];
 
 async function loadListItemsFromFirebase() {
-    const snapshot = await firebase.database().ref('hikeLinks').once('value');
+    const snapshot = await firebase.database().ref('national_dishLinks').once('value');
     if (snapshot.exists()) {
         const data = snapshot.val();
         return Object.keys(data).map(key => data[key]);
     }
-    return hikeLinks;
+    return national_dishLinks;
 }
 
 function saveListItemsToFirebase() {
-    firebase.database().ref('hikeLinks').set(hikeLinks)
+    firebase.database().ref('national_dishLinks').set(national_dishLinks)
         .then(() => {
             console.log('List items saved successfully');
         })
@@ -19,44 +19,44 @@ function saveListItemsToFirebase() {
         });
 }
 
-function addhikeLinks(links, container) {
+function addnational_dishLinks(links, container) {
     container.innerHTML = ""; // Clear the container before adding items
-    links.forEach((link, hikeIndex) => {
-        const hikeItem = createhikeItem(link, hikeIndex);
-        container.appendChild(hikeItem);
+    links.forEach((link, national_dishIndex) => {
+        const national_dishItem = createnational_dishItem(link, national_dishIndex);
+        container.appendChild(national_dishItem);
     });
     saveListItemsToFirebase(); // Save the list items to Firebase
 }
 
-function createhikeItem(link, hikeIndex) {
-    const hikeItem = document.createElement("div");
-    hikeItem.className = "hike-item";
-    hikeItem.setAttribute("draggable", "true");
-    hikeItem.ondragstart = (event) => {
-        event.dataTransfer.setData("text/plain", hikeIndex);
+function createnational_dishItem(link, national_dishIndex) {
+    const national_dishItem = document.createElement("div");
+    national_dishItem.className = "national_dish-item";
+    national_dishItem.setAttribute("draggable", "true");
+    national_dishItem.ondragstart = (event) => {
+        event.dataTransfer.setData("text/plain", national_dishIndex);
     };
-    hikeItem.ondragover = (event) => {
+    national_dishItem.ondragover = (event) => {
         event.preventDefault();
     };
-    hikeItem.ondrop = (event) => {
+    national_dishItem.ondrop = (event) => {
         event.preventDefault();
         const srcIndex = parseInt(event.dataTransfer.getData("text/plain"), 10);
-        const destIndex = hikeIndex;
-        movehikeLink(srcIndex, destIndex);
-        addhikeLinks(hikeLinks, document.getElementById("hikes"));
+        const destIndex = national_dishIndex;
+        movenational_dishLink(srcIndex, destIndex);
+        addnational_dishLinks(national_dishLinks, document.getElementById("national_dishs"));
     };
 
     const titleLink = createTitleLink(link);
-    hikeItem.appendChild(titleLink);
+    national_dishItem.appendChild(titleLink);
 
-    const collapsibleContent = createCollapsibleContent(link, hikeIndex);
-    hikeItem.appendChild(collapsibleContent);
+    const collapsibleContent = createCollapsibleContent(link, national_dishIndex);
+    national_dishItem.appendChild(collapsibleContent);
 
     titleLink.onclick = () => {
         toggleCollapsibleContent(collapsibleContent);
     };
 
-    return hikeItem;
+    return national_dishItem;
 }
 
 function createTitleLink(link) {
@@ -67,7 +67,7 @@ function createTitleLink(link) {
     return titleLink;
 }
 
-function createCollapsibleContent(link, hikeIndex) {
+function createCollapsibleContent(link, national_dishIndex) {
     const collapsibleContent = document.createElement("div");
     collapsibleContent.className = "collapsible-content";
     collapsibleContent.style.display = "none";
@@ -76,7 +76,7 @@ function createCollapsibleContent(link, hikeIndex) {
     collapsibleContent.appendChild(description);
 
     if (link.carouselImages && link.carouselImages.length > 0) {
-        const carousel = createCarousel(link, hikeIndex);
+        const carousel = createCarousel(link, national_dishIndex);
         collapsibleContent.appendChild(carousel);
     }
 
@@ -89,11 +89,11 @@ function createDescription(link) {
     return description;
 }
 
-function createCarousel(link, hikeIndex) {
+function createCarousel(link, national_dishIndex) {
     const carouselWrapper = document.createElement("div");
     carouselWrapper.className = "carousel-wrapper";
 
-    const carouselId = `hikeCarousel${hikeIndex}`;
+    const carouselId = `national_dishCarousel${national_dishIndex}`;
 
     const carousel = document.createElement("div");
     carousel.className = "carousel slide";
@@ -193,8 +193,8 @@ async function addNewListItem() {
         carouselImages: carouselImages.length > 0 ? carouselImages : [],
     };
 
-    hikeLinks.push(newItem);
-    addhikeLinks(hikeLinks, document.getElementById("hikes"));
+    national_dishLinks.push(newItem);
+    addnational_dishLinks(national_dishLinks, document.getElementById("national_dishs"));
 }
 
 async function uploadImages(imagesInput) {
@@ -226,21 +226,21 @@ async function deleteListItem() {
 
     if (!itemTitle) return;
 
-    hikeLinks = hikeLinks.filter(link => link.title !== itemTitle);
-    addhikeLinks(hikeLinks, document.getElementById("hikes"));
+    national_dishLinks = national_dishLinks.filter(link => link.title !== itemTitle);
+    addnational_dishLinks(national_dishLinks, document.getElementById("national_dishs"));
 }
 
-function movehikeLink(srcIndex, destIndex) {
+function movenational_dishLink(srcIndex, destIndex) {
     if (srcIndex === destIndex) return;
 
-    const movingItem = hikeLinks.splice(srcIndex, 1)[0];
-    hikeLinks.splice(destIndex, 0, movingItem);
+    const movingItem = national_dishLinks.splice(srcIndex, 1)[0];
+    national_dishLinks.splice(destIndex, 0, movingItem);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const hikeContainer = document.getElementById("hikes");
-    hikeLinks = await loadListItemsFromFirebase();
-    addhikeLinks(hikeLinks, hikeContainer);
+    const national_dishContainer = document.getElementById("national_dishs");
+    national_dishLinks = await loadListItemsFromFirebase();
+    addnational_dishLinks(national_dishLinks, national_dishContainer);
 
     const addNewItemForm = document.getElementById("addNewItemForm");
     addNewItemForm.addEventListener("submit", async (event) => {
@@ -269,26 +269,26 @@ async function editListItem() {
 
     if (!itemTitle) return;
 
-    const newItemIndex = hikeLinks.findIndex(link => link.title === itemTitle);
+    const newItemIndex = national_dishLinks.findIndex(link => link.title === itemTitle);
     if (newItemIndex === -1) {
         console.error("Item not found");
         return;
     }
 
     if (newTitle) {
-        hikeLinks[newItemIndex].title = newTitle;
+        national_dishLinks[newItemIndex].title = newTitle;
     }
 
     if (newDescription) {
-        hikeLinks[newItemIndex].description = newDescription;
+        national_dishLinks[newItemIndex].description = newDescription;
     }
 
     if (newImagesInput.length > 0) {
         const newCarouselImages = await uploadImages(newImagesInput);
-        hikeLinks[newItemIndex].carouselImages = newCarouselImages;
+        national_dishLinks[newItemIndex].carouselImages = newCarouselImages;
     }
 
-    addhikeLinks(hikeLinks, document.getElementById("hikes"));
+    addnational_dishLinks(national_dishLinks, document.getElementById("national_dishs"));
 }
 
 // Add a new event listener for the editItemForm:

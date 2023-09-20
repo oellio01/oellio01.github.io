@@ -1,0 +1,100 @@
+.custom-body {
+    font-family: 'Monoton';
+    text-align: center;
+}
+
+.custom-body h1 {
+  word-spacing: 30px;
+}
+
+.custom-body h5 {
+    font-family: 'Josefin Slab', serif;
+}
+
+.custom-navbar {
+    list-style-type: none;
+}
+
+@media screen and (max-width: 800px) {
+    .custom-navbar li,
+    li {
+        display: block;
+        padding: 2px;
+    }
+}
+
+@media screen and (min-width: 801px) {
+    .custom-navbar li,
+    li {
+        display: inline;
+        margin: 12px;
+    }
+}
+
+.ranking {
+    font-family: 'Fredericka the Great';
+    font-size: 18px;
+    max-width: 600px;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    align-self: center;
+    margin: auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.collapsible-content {
+    font-family: 'Fredericka the Great';
+    font-size: 18px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.custom-body a {
+    color: #000000;
+    text-decoration: none;
+}
+
+div a {
+    display: block;
+    text-align: center;
+    padding: 5px;
+}
+
+.custom-body a:hover {
+    color: blue;
+}
+
+/* Add the following CSS for the collapsible content */
+.collapsible-content {
+    display: none;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.carousel-wrapper .carousel img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border: none;
+}
+
+.carousel-wrapper .carousel {
+  border: none;
+}
+
+.carousel-wrapper .trip-item {
+  border: none;
+}
+
+/* Add this new rule for the form elements inside the tab-content */
+.tab-content form label,
+.tab-content form input[type="text"],
+.tab-content form input[type="file"],
+.tab-content form input[type="submit"] {
+    font-family: 'Josefin Slab', serif;
+}

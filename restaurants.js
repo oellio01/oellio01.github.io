@@ -1,16 +1,16 @@
-let hikeLinks = [];
+let restaurantLinks = [];
 
 async function loadListItemsFromFirebase() {
-    const snapshot = await firebase.database().ref('hikeLinks').once('value');
+    const snapshot = await firebase.database().ref('restaurantLinks').once('value');
     if (snapshot.exists()) {
         const data = snapshot.val();
         return Object.keys(data).map(key => data[key]);
     }
-    return hikeLinks;
+    return restaurantLinks;
 }
 
 function saveListItemsToFirebase() {
-    firebase.database().ref('hikeLinks').set(hikeLinks)
+    firebase.database().ref('restaurantLinks').set(restaurantLinks)
         .then(() => {
             console.log('List items saved successfully');
         })
@@ -19,44 +19,44 @@ function saveListItemsToFirebase() {
         });
 }
 
-function addhikeLinks(links, container) {
+function addrestaurantLinks(links, container) {
     container.innerHTML = ""; // Clear the container before adding items
-    links.forEach((link, hikeIndex) => {
-        const hikeItem = createhikeItem(link, hikeIndex);
-        container.appendChild(hikeItem);
+    links.forEach((link, restaurantIndex) => {
+        const restaurantItem = createrestaurantItem(link, restaurantIndex);
+        container.appendChild(restaurantItem);
     });
     saveListItemsToFirebase(); // Save the list items to Firebase
 }
 
-function createhikeItem(link, hikeIndex) {
-    const hikeItem = document.createElement("div");
-    hikeItem.className = "hike-item";
-    hikeItem.setAttribute("draggable", "true");
-    hikeItem.ondragstart = (event) => {
-        event.dataTransfer.setData("text/plain", hikeIndex);
+function createrestaurantItem(link, restaurantIndex) {
+    const restaurantItem = document.createElement("div");
+    restaurantItem.className = "restaurant-item";
+    restaurantItem.setAttribute("draggable", "true");
+    restaurantItem.ondragstart = (event) => {
+        event.dataTransfer.setData("text/plain", restaurantIndex);
     };
-    hikeItem.ondragover = (event) => {
+    restaurantItem.ondragover = (event) => {
         event.preventDefault();
     };
-    hikeItem.ondrop = (event) => {
+    restaurantItem.ondrop = (event) => {
         event.preventDefault();
         const srcIndex = parseInt(event.dataTransfer.getData("text/plain"), 10);
-        const destIndex = hikeIndex;
-        movehikeLink(srcIndex, destIndex);
-        addhikeLinks(hikeLinks, document.getElementById("hikes"));
+        const destIndex = restaurantIndex;
+        moverestaurantLink(srcIndex, destIndex);
+        addrestaurantLinks(restaurantLinks, document.getElementById("restaurants"));
     };
 
     const titleLink = createTitleLink(link);
-    hikeItem.appendChild(titleLink);
+    restaurantItem.appendChild(titleLink);
 
-    const collapsibleContent = createCollapsibleContent(link, hikeIndex);
-    hikeItem.appendChild(collapsibleContent);
+    const collapsibleContent = createCollapsibleContent(link, restaurantIndex);
+    restaurantItem.appendChild(collapsibleContent);
 
     titleLink.onclick = () => {
         toggleCollapsibleContent(collapsibleContent);
     };
 
-    return hikeItem;
+    return restaurantItem;
 }
 
 function createTitleLink(link) {
@@ -67,7 +67,7 @@ function createTitleLink(link) {
     return titleLink;
 }
 
-function createCollapsibleContent(link, hikeIndex) {
+function createCollapsibleContent(link, restaurantIndex) {
     const collapsibleContent = document.createElement("div");
     collapsibleContent.className = "collapsible-content";
     collapsibleContent.style.display = "none";
@@ -76,7 +76,7 @@ function createCollapsibleContent(link, hikeIndex) {
     collapsibleContent.appendChild(description);
 
     if (link.carouselImages && link.carouselImages.length > 0) {
-        const carousel = createCarousel(link, hikeIndex);
+        const carousel = createCarousel(link, restaurantIndex);
         collapsibleContent.appendChild(carousel);
     }
 
@@ -89,11 +89,11 @@ function createDescription(link) {
     return description;
 }
 
-function createCarousel(link, hikeIndex) {
+function createCarousel(link, restaurantIndex) {
     const carouselWrapper = document.createElement("div");
     carouselWrapper.className = "carousel-wrapper";
 
-    const carouselId = `hikeCarousel${hikeIndex}`;
+    const carouselId = `restaurantCarousel${restaurantIndex}`;
 
     const carousel = document.createElement("div");
     carousel.className = "carousel slide";
@@ -193,8 +193,8 @@ async function addNewListItem() {
         carouselImages: carouselImages.length > 0 ? carouselImages : [],
     };
 
-    hikeLinks.push(newItem);
-    addhikeLinks(hikeLinks, document.getElementById("hikes"));
+    restaurantLinks.push(newItem);
+    addrestaurantLinks(restaurantLinks, document.getElementById("restaurants"));
 }
 
 async function uploadImages(imagesInput) {
@@ -226,21 +226,21 @@ async function deleteListItem() {
 
     if (!itemTitle) return;
 
-    hikeLinks = hikeLinks.filter(link => link.title !== itemTitle);
-    addhikeLinks(hikeLinks, document.getElementById("hikes"));
+    restaurantLinks = restaurantLinks.filter(link => link.title !== itemTitle);
+    addrestaurantLinks(restaurantLinks, document.getElementById("restaurants"));
 }
 
-function movehikeLink(srcIndex, destIndex) {
+function moverestaurantLink(srcIndex, destIndex) {
     if (srcIndex === destIndex) return;
 
-    const movingItem = hikeLinks.splice(srcIndex, 1)[0];
-    hikeLinks.splice(destIndex, 0, movingItem);
+    const movingItem = restaurantLinks.splice(srcIndex, 1)[0];
+    restaurantLinks.splice(destIndex, 0, movingItem);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const hikeContainer = document.getElementById("hikes");
-    hikeLinks = await loadListItemsFromFirebase();
-    addhikeLinks(hikeLinks, hikeContainer);
+    const restaurantContainer = document.getElementById("restaurants");
+    restaurantLinks = await loadListItemsFromFirebase();
+    addrestaurantLinks(restaurantLinks, restaurantContainer);
 
     const addNewItemForm = document.getElementById("addNewItemForm");
     addNewItemForm.addEventListener("submit", async (event) => {
@@ -269,26 +269,26 @@ async function editListItem() {
 
     if (!itemTitle) return;
 
-    const newItemIndex = hikeLinks.findIndex(link => link.title === itemTitle);
+    const newItemIndex = restaurantLinks.findIndex(link => link.title === itemTitle);
     if (newItemIndex === -1) {
         console.error("Item not found");
         return;
     }
 
     if (newTitle) {
-        hikeLinks[newItemIndex].title = newTitle;
+        restaurantLinks[newItemIndex].title = newTitle;
     }
 
     if (newDescription) {
-        hikeLinks[newItemIndex].description = newDescription;
+        restaurantLinks[newItemIndex].description = newDescription;
     }
 
     if (newImagesInput.length > 0) {
         const newCarouselImages = await uploadImages(newImagesInput);
-        hikeLinks[newItemIndex].carouselImages = newCarouselImages;
+        restaurantLinks[newItemIndex].carouselImages = newCarouselImages;
     }
 
-    addhikeLinks(hikeLinks, document.getElementById("hikes"));
+    addrestaurantLinks(restaurantLinks, document.getElementById("restaurants"));
 }
 
 // Add a new event listener for the editItemForm:

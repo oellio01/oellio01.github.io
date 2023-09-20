@@ -1,16 +1,16 @@
-let hikeLinks = [];
+let museumLinks = [];
 
 async function loadListItemsFromFirebase() {
-    const snapshot = await firebase.database().ref('hikeLinks').once('value');
+    const snapshot = await firebase.database().ref('museumLinks').once('value');
     if (snapshot.exists()) {
         const data = snapshot.val();
         return Object.keys(data).map(key => data[key]);
     }
-    return hikeLinks;
+    return museumLinks;
 }
 
 function saveListItemsToFirebase() {
-    firebase.database().ref('hikeLinks').set(hikeLinks)
+    firebase.database().ref('museumLinks').set(museumLinks)
         .then(() => {
             console.log('List items saved successfully');
         })
@@ -19,44 +19,44 @@ function saveListItemsToFirebase() {
         });
 }
 
-function addhikeLinks(links, container) {
+function addmuseumLinks(links, container) {
     container.innerHTML = ""; // Clear the container before adding items
-    links.forEach((link, hikeIndex) => {
-        const hikeItem = createhikeItem(link, hikeIndex);
-        container.appendChild(hikeItem);
+    links.forEach((link, museumIndex) => {
+        const museumItem = createmuseumItem(link, museumIndex);
+        container.appendChild(museumItem);
     });
     saveListItemsToFirebase(); // Save the list items to Firebase
 }
 
-function createhikeItem(link, hikeIndex) {
-    const hikeItem = document.createElement("div");
-    hikeItem.className = "hike-item";
-    hikeItem.setAttribute("draggable", "true");
-    hikeItem.ondragstart = (event) => {
-        event.dataTransfer.setData("text/plain", hikeIndex);
+function createmuseumItem(link, museumIndex) {
+    const museumItem = document.createElement("div");
+    museumItem.className = "museum-item";
+    museumItem.setAttribute("draggable", "true");
+    museumItem.ondragstart = (event) => {
+        event.dataTransfer.setData("text/plain", museumIndex);
     };
-    hikeItem.ondragover = (event) => {
+    museumItem.ondragover = (event) => {
         event.preventDefault();
     };
-    hikeItem.ondrop = (event) => {
+    museumItem.ondrop = (event) => {
         event.preventDefault();
         const srcIndex = parseInt(event.dataTransfer.getData("text/plain"), 10);
-        const destIndex = hikeIndex;
-        movehikeLink(srcIndex, destIndex);
-        addhikeLinks(hikeLinks, document.getElementById("hikes"));
+        const destIndex = museumIndex;
+        movemuseumLink(srcIndex, destIndex);
+        addmuseumLinks(museumLinks, document.getElementById("museums"));
     };
 
     const titleLink = createTitleLink(link);
-    hikeItem.appendChild(titleLink);
+    museumItem.appendChild(titleLink);
 
-    const collapsibleContent = createCollapsibleContent(link, hikeIndex);
-    hikeItem.appendChild(collapsibleContent);
+    const collapsibleContent = createCollapsibleContent(link, museumIndex);
+    museumItem.appendChild(collapsibleContent);
 
     titleLink.onclick = () => {
         toggleCollapsibleContent(collapsibleContent);
     };
 
-    return hikeItem;
+    return museumItem;
 }
 
 function createTitleLink(link) {
@@ -67,7 +67,7 @@ function createTitleLink(link) {
     return titleLink;
 }
 
-function createCollapsibleContent(link, hikeIndex) {
+function createCollapsibleContent(link, museumIndex) {
     const collapsibleContent = document.createElement("div");
     collapsibleContent.className = "collapsible-content";
     collapsibleContent.style.display = "none";
@@ -76,7 +76,7 @@ function createCollapsibleContent(link, hikeIndex) {
     collapsibleContent.appendChild(description);
 
     if (link.carouselImages && link.carouselImages.length > 0) {
-        const carousel = createCarousel(link, hikeIndex);
+        const carousel = createCarousel(link, museumIndex);
         collapsibleContent.appendChild(carousel);
     }
 
@@ -89,11 +89,11 @@ function createDescription(link) {
     return description;
 }
 
-function createCarousel(link, hikeIndex) {
+function createCarousel(link, museumIndex) {
     const carouselWrapper = document.createElement("div");
     carouselWrapper.className = "carousel-wrapper";
 
-    const carouselId = `hikeCarousel${hikeIndex}`;
+    const carouselId = `museumCarousel${museumIndex}`;
 
     const carousel = document.createElement("div");
     carousel.className = "carousel slide";
@@ -193,8 +193,8 @@ async function addNewListItem() {
         carouselImages: carouselImages.length > 0 ? carouselImages : [],
     };
 
-    hikeLinks.push(newItem);
-    addhikeLinks(hikeLinks, document.getElementById("hikes"));
+    museumLinks.push(newItem);
+    addmuseumLinks(museumLinks, document.getElementById("museums"));
 }
 
 async function uploadImages(imagesInput) {
@@ -226,21 +226,21 @@ async function deleteListItem() {
 
     if (!itemTitle) return;
 
-    hikeLinks = hikeLinks.filter(link => link.title !== itemTitle);
-    addhikeLinks(hikeLinks, document.getElementById("hikes"));
+    museumLinks = museumLinks.filter(link => link.title !== itemTitle);
+    addmuseumLinks(museumLinks, document.getElementById("museums"));
 }
 
-function movehikeLink(srcIndex, destIndex) {
+function movemuseumLink(srcIndex, destIndex) {
     if (srcIndex === destIndex) return;
 
-    const movingItem = hikeLinks.splice(srcIndex, 1)[0];
-    hikeLinks.splice(destIndex, 0, movingItem);
+    const movingItem = museumLinks.splice(srcIndex, 1)[0];
+    museumLinks.splice(destIndex, 0, movingItem);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const hikeContainer = document.getElementById("hikes");
-    hikeLinks = await loadListItemsFromFirebase();
-    addhikeLinks(hikeLinks, hikeContainer);
+    const museumContainer = document.getElementById("museums");
+    museumLinks = await loadListItemsFromFirebase();
+    addmuseumLinks(museumLinks, museumContainer);
 
     const addNewItemForm = document.getElementById("addNewItemForm");
     addNewItemForm.addEventListener("submit", async (event) => {
@@ -269,26 +269,26 @@ async function editListItem() {
 
     if (!itemTitle) return;
 
-    const newItemIndex = hikeLinks.findIndex(link => link.title === itemTitle);
+    const newItemIndex = museumLinks.findIndex(link => link.title === itemTitle);
     if (newItemIndex === -1) {
         console.error("Item not found");
         return;
     }
 
     if (newTitle) {
-        hikeLinks[newItemIndex].title = newTitle;
+        museumLinks[newItemIndex].title = newTitle;
     }
 
     if (newDescription) {
-        hikeLinks[newItemIndex].description = newDescription;
+        museumLinks[newItemIndex].description = newDescription;
     }
 
     if (newImagesInput.length > 0) {
         const newCarouselImages = await uploadImages(newImagesInput);
-        hikeLinks[newItemIndex].carouselImages = newCarouselImages;
+        museumLinks[newItemIndex].carouselImages = newCarouselImages;
     }
 
-    addhikeLinks(hikeLinks, document.getElementById("hikes"));
+    addmuseumLinks(museumLinks, document.getElementById("museums"));
 }
 
 // Add a new event listener for the editItemForm:
